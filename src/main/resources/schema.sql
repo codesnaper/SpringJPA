@@ -41,3 +41,4 @@ CREATE TABLE rating (
     issue_card_id INT NULL,
     FOREIGN KEY(issue_card_id) REFERENCES issue_card(id)
 );
+

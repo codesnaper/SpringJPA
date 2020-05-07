@@ -3,13 +3,10 @@ package com.example.springjpa.service;
 import com.example.springjpa.SpringJpaApplication;
 import com.example.springjpa.dao.BookDao;
 import com.example.springjpa.dao.IssueCardDao;
+import com.example.springjpa.dao.MemberShipDao;
 import com.example.springjpa.dao.PersonRep;
-import com.example.springjpa.exception.AlreadyIssuedBook;
-import com.example.springjpa.exception.IssueCardExpiration;
-import com.example.springjpa.exception.NotFoundException;
-import com.example.springjpa.model.Book;
-import com.example.springjpa.model.IssueCard;
-import com.example.springjpa.model.Person;
+import com.example.springjpa.exception.*;
+import com.example.springjpa.model.*;
 import com.example.springjpa.util.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +35,8 @@ public class IssueCardServiceTest {
     private IssueCardDao issueCardDao;
     @Autowired
     private PersonRep personRep;
+    @Autowired
+    private MemberShipDao memberShipDao;
 
     private IssueCard issueCard;
 
@@ -102,6 +101,44 @@ public class IssueCardServiceTest {
         System.out.println(bookDao.findById(bookId1).getIssueCard());
         System.out.println(bookDao.findById(bookId).getIssueCard().toString());
         Assert.assertEquals(1,bookDao.getAllNonIssuedBook().size());
+    }
+
+    @Test
+    public void getIssueCardAccMembership() throws NotFoundException, MemberShipExpiration, OutOFIssueCardExcpetion {
+        int personId = personRep.insertPerson(new Person("Shubham","Khandelwal",null));
+        BasicMemberShip membership = new BasicMemberShip("dhsj74ebdc");
+        membership.setIssueCardCount(2);
+        membership.setExpiryDate(Date.valueOf(LocalDate.now().plusMonths(1)));
+        membership.setPerson(personRep.findById(personId));
+        memberShipDao.addMembership(membership);
+        Assert.assertNotEquals(0,issueCardService.getIssueCard(personId));
+        Assert.assertNotEquals(0,issueCardService.getIssueCard(personId));
+        Util.printRow(memberShipDao.getMemberList());
+    }
+
+    @Test(expected =  OutOFIssueCardExcpetion.class)
+    public void getIssueCardAccMembershipExceede() throws NotFoundException, MemberShipExpiration, OutOFIssueCardExcpetion {
+        int personId = personRep.insertPerson(new Person("Shubham","Khandelwal",null));
+        BasicMemberShip membership = new BasicMemberShip("dhsj74ebdc");
+        membership.setIssueCardCount(2);
+        membership.setExpiryDate(Date.valueOf(LocalDate.now().plusMonths(1)));
+        membership.setPerson(personRep.findById(personId));
+        memberShipDao.addMembership(membership);
+        Assert.assertNotEquals(0,issueCardService.getIssueCard(personId));
+        Assert.assertNotEquals(0,issueCardService.getIssueCard(personId));
+        issueCardService.getIssueCard(personId);
+    }
+
+    @Test(expected =  MemberShipExpiration.class)
+    public void getIssueCardAccMembershipExpire() throws NotFoundException, MemberShipExpiration, OutOFIssueCardExcpetion {
+        int personId = personRep.insertPerson(new Person("Shubham","Khandelwal",null));
+        BasicMemberShip membership = new BasicMemberShip("dhsj74ebdc");
+        membership.setIssueCardCount(2);
+        membership.setExpiryDate(Date.valueOf(LocalDate.now().minusDays(30)));
+        membership.setPerson(personRep.findById(personId));
+        memberShipDao.addMembership(membership);
+
+        issueCardService.getIssueCard(personId);
     }
 
 }

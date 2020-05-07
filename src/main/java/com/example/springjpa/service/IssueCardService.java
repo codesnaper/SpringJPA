@@ -2,12 +2,10 @@ package com.example.springjpa.service;
 
 import com.example.springjpa.dao.BookDao;
 import com.example.springjpa.dao.IssueCardDao;
-import com.example.springjpa.exception.AlreadyIssuedBook;
-import com.example.springjpa.exception.IssueCardExpiration;
-import com.example.springjpa.exception.NotFoundException;
-import com.example.springjpa.model.Book;
-import com.example.springjpa.model.IssueCard;
-import com.example.springjpa.model.Person;
+import com.example.springjpa.dao.MemberShipDao;
+import com.example.springjpa.exception.*;
+import com.example.springjpa.model.*;
+import com.example.springjpa.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +27,39 @@ public class IssueCardService {
     private IssueCardDao issueCardDao;
     @Autowired
     private BookDao bookDao;
+    @Autowired
+    private MemberShipDao memberShipDao;
 
     private Logger logger = LoggerFactory.getLogger(IssueCardService.class);
 
+    public int getIssueCard(int personid) throws OutOFIssueCardExcpetion,MemberShipExpiration{
+        Membership membership = memberShipDao.getMemberlistByPerson(personid);
+        if(membership instanceof BasicMemberShip){
+            if(Date.valueOf(LocalDate.now()).compareTo(((BasicMemberShip) membership).getExpiryDate()) >=0){
+                throw  new MemberShipExpiration("Your membership has been expired. Please renew you membership to continue");
+            }
+            int issueCount = ((BasicMemberShip) (membership)).getIssueCardCount();
+            if(issueCount == 0)
+                throw new OutOFIssueCardExcpetion("Your Plan has reached max issue card. You cannot have new Issue card. Upgrade your plan to premium to have more issue card");
+            issueCount--;
+            ((BasicMemberShip) (membership)).setIssueCardCount(issueCount);
+            memberShipDao.updateMembership(membership);
+        }
+        else if(membership instanceof PreminumMembership){
+            if(Date.valueOf(LocalDate.now()).compareTo(((BasicMemberShip) membership).getExpiryDate())>=0){
+                throw  new MemberShipExpiration("Your membership has been expired. Please renew you membership to continue");
+            }
+            int issueCount = ((PreminumMembership) (membership)).getIssueCardCount();
+            if(issueCount == 0)
+                throw new OutOFIssueCardExcpetion("Your Plan has reached max issue card. You cannot have new Issue card.");
+            ((BasicMemberShip) (membership)).setIssueCardCount(issueCount--);
+            memberShipDao.updateMembership(membership);
+        }
+        else {
+            throw new OutOFIssueCardExcpetion("Upgrade your plan to basic or preminum membership");
+        }
+        return this.getNewIssueCard();
+    }
 
     public int getNewIssueCard(){
         byte[] array = new byte[20]; // length is bounded by 7
