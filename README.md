@@ -13,7 +13,7 @@
 
 
 ## Hibernate CLass:
-[Class Daigram](./image/Class.png)
+[Class Daigram](./src/main/resources/image/Class.png)
 ### Session: 
 Object which contain mapping and configuration information and used to have the connection from Database. We cannot create the session object by own because for every transaction we need session object mean every time we will create a new connection. So to get session object we can use sessionFactory
 
@@ -33,7 +33,7 @@ Inside the persistence context there is a uniquely entity instance. So for any m
 2. Persistent state: Where entity of attribute is attached to database or session to perform some operation. JPA operation : persist(), merge()
 3. Detached state: Once object has been removed the relationship with session or database. JPA Method: detach(), clear(),refresh()
 4. Removed state: When we need to perform update, delete from db.: JPA method : merge(),remove()
-[Diagram for Lifecycle](./image/entity-lifecycle.png)
+[Diagram for Lifecycle](./src/main/resources/image/entity-lifecycle.png)
 	We have 2 type of persistence Context:
 1. Transaction-scoped : By default in JPA. There will be only one persistence context object.
 2. Extended-Scoped : There will be multiple persistence object each type when is autowired in multiple bean.And one persistence context is unawre of another persistence object.
@@ -130,7 +130,7 @@ CLass B(){
 3. **Composition**:
 > It same like aggregration only difference is that child class cannot exist if parent class is not there.
 
->[Daigram]('./image/association.png')
+>[Daigram]('./src/main/resources/image/association.png')
 
 ### Relationship Mapping model
 There are several problems while persistency the data into the database because one entity class may contains relational data it is every hard to predict the relationship with underlying database.
@@ -148,7 +148,7 @@ To solve the problem with inheritance probelm there are 3 strategy way:
 2. Table per class
 3. Joined
 
-[Inheritance Explanation Diagram](./image/Inheritance.png)
+[Inheritance Explanation Diagram](./src/main/resources/image/Inheritance.png)
 Example : [Membership class](./src/main/java/com/example/springjpa/model/Membership.java) , [BasicMembershipClass](./src/main/java/com/example/springjpa/model/BasicMemberShip.java) , [PremiumMembership Class](./src/main/java/com/example/springjpa/model/PreminumMembership.java)
 
 
