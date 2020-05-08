@@ -1,4 +1,4 @@
-# Welcome to StackEdit!
+#Spring-JPA
 
 ##Hibernate V/s JDBC:
 
@@ -52,6 +52,119 @@ detach(Object): No longer to track the change for the object
 clear(): No longer to track the change in entity manager for all object.
 refresh(object): Whatever the change done to object is not required rollback it.
 [Example](./src/main/java/com/example/springjpa/dao/PersonRep.java)
+
+
+
+# RelationShip
+
+### Relationship using inheritance
+1. **Generalization**
+>It is process of keeping duplicate method in one class and extend the class to another class for using the method.
+
+Example: m1() functionality is the duplicate method require in Class B & C for their method
+Class A{
+	public void m1(){}
+}
+
+Class B extend A{
+	public void m2(){
+	super.m1();
+	}
+}
+
+Class C extend A{
+	public void m2(){
+	super.m1();
+	}
+}
+
+2. **Realization**
+>Here we will be using same method but the implemantation of method is different according to class.
+
+Example:
+Interface A{
+	void m1();
+}	
+
+Class B implements A{
+	@Override
+	public void m1(){//Implementation 1}
+}
+
+Class C implements A{
+	@Override
+	public void m1(){//Implementation 2}
+}
+
+3. **Specialization**
+
+> A class which have its own functionlity remain to that class only and will not be sharable to other class.
+
+Example:
+Class A{
+	private  static final m1(){}
+}
+
+Class B extends A{
+	//m1 cant be share to this class.
+}
+
+### Relationship using Composition
+1. **Association**
+> when we want to communicate with other class there must be a link and that can be represented by assocaition (connector). There can be one-to-one assocaition, one-to-n asociation, n-to-one association
+
+Example:  Class B want to talk to Class A
+Class A(){}
+CLass B(){
+	A a = new A()// now class B can talk to A
+}
+
+2.  **Aggregration**
+> one class "owns" object of another class. But in aggregration it implies   relationship where the child can exist independently of the parent
+
+
+3. **Composition**:
+> It same like aggregration only difference is that child class cannot exist if parent class is not there.
+
+>[Daigram]('./image/association')
+
+### Relationship Mapping model
+There are several problems while persistency the data into the database because one entity class may contains relational data it is every hard to predict the relationship with underlying database.
+ORM Technology has founded five most common problems while dealing with the relationship with object.
+• Granularity
+• Inheritance
+• Navigation
+• Identity
+• Association
+
+For that ORM has come with
+**Inheritance Mapping Model** 
+To solve the problem with inheritance probelm there are 3 strategy way:
+1. SingleTable 
+2. Table per class
+3. Joined
+
+[Inheritance Explanation](./image/Inheritance.png)
+Example : [Membership class](./src/main/java/com/example/springjpa/model/Membership.java) , [BasicMembershipClass](./src/main/java/com/example/springjpa/model/BasicMemberShip.java) , [PremiumMembership Class](./src/main/java/com/example/springjpa/model/PreminumMembership.java)
+
+
+## Association
+1. One-to-one 
+	When we want to map the 2 table as one-to-one relationship we use this mapping. Example: IssueCard need to map person and there can be only one issuecard to one person. This is one-to-one unidirectional. As in person we don't need to map issue card. But if we need person to have issuecard into that then as we done with issuecard we have to do same in person we have to create one more foreign key in person as issue card so we can map issue card too. This is Bidirectional. In This we need to make the change in table. But if we don't need to change the table then JPA also provide mapped attribute in @oneToOne.
+	[Person.class](./src/main/java/com/example/springjpa/model/Person.java)
+	[IssueCard.class](./src/main/java/com/example/springjpa/model/IssueCard.java)
+2. One-to-many:
+When we want to map two table and the table can map the multiple entity of another table. Always Consider as Class and attribute, if class can have multiple attribute then it is one-to-many.
+[IssueCard.java](./src/main/java/com/example/springjpa/model/IssueCard.java)
+>One issue card may have multiple rating, so it is one-to-many maping
+3. many-to-one
+When we want to map two table and the entity can map the multiple table. Always Consider as Class and attribute, if we have multiple class that map to single attribute then it is many-to-one.
+[Rating.java](./src/main/java/com/example/springjpa/model/Rating.java)
+There can be multiple rating for one issue card.
+4. Many-to-many
+If multiple class can be mapped to another multiple class.
+
+
 
 # Transaction Management
 
