@@ -42,8 +42,8 @@ Inside the persistence context there is a uniquely entity instance. So for any m
 [Transaction-scoped class](./src/main/java/com/example/springjpa/dao/PersonRep.java)
 
 ## @DirtiesContext
-	When we dont want the transaction to be saved on to DB  after the operation is complete.
-	[PersonRepTest.java](./src/test/java/com/example/springjpa/dao/PersonRepTest.java)
+When we dont want the transaction to be saved on to DB  after the operation is complete.
+[PersonRepTest.java](./src/test/java/com/example/springjpa/dao/PersonRepTest.java)
 	
 ## Lazy Fetch and Eager Fetch
 When we mapped the object there may be another object which need to mapped. For example for Book class we also have Person Object which need to get Value. So in lazy fetch when we call the IssueCard class it will create a proxy object of person and instead of going to db to get value it will populate default value. But when we access the person object i.e. issueCaed.getPerson() then it will again go to db and fetch the value . So this is called lazy Fetch .
@@ -244,8 +244,8 @@ Spring use the propogation to configure the transaction boundary across business
 1. **REQUIRED** — support a current transaction, create a new one if none exist
 2. **REQUIRES_NEW** — create a new transaction and suspend the current transaction if none exist
 3. **MANDATORY** — support a current transaction, throw an exception if none exists
-4  **NESTED** — executes within a nested transaction if a current transaction exists
-5  **SUPPORTS** — supports currents transaction but execute non-transactionally if none exists
+4.  **NESTED** — executes within a nested transaction if a current transaction exists
+5.  **SUPPORTS** — supports currents transaction but execute non-transactionally if none exists
 
 ### Implementation of transaction management:
 @transactional from javax.transaction.Transactional is good to manage transation for single db.
