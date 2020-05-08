@@ -1,8 +1,8 @@
-# Welcome to StackEdit!
+# Spring-JPA
 
-##Hibernate V/s JDBC:
+## Hibernate V/s JDBC:
 
- 1. One of the new problem with JDBC is JDBC Exceptions are checked exceptions.
+1. One of the new problem with JDBC is JDBC Exceptions are checked exceptions.
 2. JDBC suffering from more problems to persist the data. If we want to perform any operation we have to know about the whole details about the particular table. About table name, datatypes, column name, whole schema about the table etc.We’ll get data in relational format only.
 3. Most of the time we want data in the object format but JDBC will give data in Relational format, as programmer we have to write for conversation logic object or relational format and relational format to Object format.
 4. JDBC hard to perform transaction Management
@@ -13,23 +13,7 @@
 
 
 ## Hibernate CLass:
-```mermaid
-graph LR
-A[Configuration File ,<br/> Mapping File]
-B[SessionFactory]
-C[Session]
-D[Dialect Interface]
-E[Oracle Dialect]
-F[MySql Dialect]
-G[DB2 Dialect]
-A --> B
-B --> C
-C --> D
-D --> C
-D --> E
-D --> F
-D -->G
-```
+[Class Daigram](./image/Class.png)
 ### Session: 
 Object which contain mapping and configuration information and used to have the connection from Database. We cannot create the session object by own because for every transaction we need session object mean every time we will create a new connection. So to get session object we can use sessionFactory
 
@@ -40,6 +24,26 @@ To give the session object we pass the datasource and configuration information 
 ###  Dialect
 It is used to convert HQL to underlying BD queries and vice versa. It also contain all the syntax and structure of DB queries. And also it contain the datatype. So in dialect we have one datatype which later on convert to underline database datatype.
 
+### @PersistenceContext
+Inside the persistence context there is a uniquely entity instance. So for any model mapped with @entity it will create the instance in it and it will managed the lifecycle.  It act as a first level cache where all the entity are fetched from db or persist to DB.
+	The EntityManager API is used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.
+	Whenever in  persistence context entity are changed it will marked the entity as dirty and when transaction complete this changes are flush to persistent storage. So persistence storage will kepp track of each entities.
+	There are 4 state the entity will go through to perfom the persistency
+1. Transient state: When the entity is created. Any operation done on this state will not go to DB.
+2. Persistent state: Where entity of attribute is attached to database or session to perform some operation. JPA operation : persist(), merge()
+3. Detached state: Once object has been removed the relationship with session or database. JPA Method: detach(), clear(),refresh()
+4. Removed state: When we need to perform update, delete from db.: JPA method : merge(),remove()
+[Diagram for Lifecycle](./image/entity-lifecycle.png)
+	We have 2 type of persistence Context:
+1. Transaction-scoped : By default in JPA. There will be only one persistence context object.
+2. Extended-Scoped : There will be multiple persistence object each type when is autowired in multiple bean.And one persistence context is unawre of another persistence object.
+[Extended-Scoped Class](./src/main/java/com/example/springjpa/dao/IssueCardDao.java)
+[Transaction-scoped class](./src/main/java/com/example/springjpa/dao/PersonRep.java)
+
+## @DirtiesContext
+	When we dont want the transaction to be saved on to DB  after the operation is complete.
+	[PersonRepTest.java](./src/test/java/com/example/springjpa/dao/PersonRepTest.java)
+	
 ## Lazy Fetch and Eager Fetch
 When we mapped the object there may be another object which need to mapped. For example for Book class we also have Person Object which need to get Value. So in lazy fetch when we call the IssueCard class it will create a proxy object of person and instead of going to db to get value it will populate default value. But when we access the person object i.e. issueCaed.getPerson() then it will again go to db and fetch the value . So this is called lazy Fetch .
 But in Eager fetch it will prepolute the value.
@@ -51,7 +55,120 @@ flush(): To write the data to object at this point
 detach(Object): No longer to track the change for the object
 clear(): No longer to track the change in entity manager for all object.
 refresh(object): Whatever the change done to object is not required rollback it.
-[Example](./src/main/java/com/example/springjpa/dao/PersonRep.java)
+[Example Entity Manager Java Class](./src/main/java/com/example/springjpa/dao/PersonRep.java)
+
+
+
+# RelationShip
+
+### Relationship using inheritance
+1. **Generalization**
+>It is process of keeping duplicate method in one class and extend the class to another class for using the method.
+
+Example: m1() functionality is the duplicate method require in Class B & C for their method
+Class A{
+	public void m1(){}
+}
+
+Class B extend A{
+	public void m2(){
+	super.m1();
+	}
+}
+
+Class C extend A{
+	public void m2(){
+	super.m1();
+	}
+}
+
+2. **Realization**
+>Here we will be using same method but the implemantation of method is different according to class.
+
+Example:
+Interface A{
+	void m1();
+}	
+
+Class B implements A{
+	@Override
+	public void m1(){//Implementation 1}
+}
+
+Class C implements A{
+	@Override
+	public void m1(){//Implementation 2}
+}
+
+3. **Specialization**
+
+> A class which have its own functionlity remain to that class only and will not be sharable to other class.
+
+Example:
+Class A{
+	private  static final m1(){}
+}
+
+Class B extends A{
+	//m1 cant be share to this class.
+}
+
+### Relationship using Composition
+1. **Association**
+> when we want to communicate with other class there must be a link and that can be represented by assocaition (connector). There can be one-to-one assocaition, one-to-n asociation, n-to-one association
+
+Example:  Class B want to talk to Class A
+Class A(){}
+CLass B(){
+	A a = new A()// now class B can talk to A
+}
+
+2.  **Aggregration**
+> one class "owns" object of another class. But in aggregration it implies   relationship where the child can exist independently of the parent
+
+
+3. **Composition**:
+> It same like aggregration only difference is that child class cannot exist if parent class is not there.
+
+>[Daigram]('./image/association.png')
+
+### Relationship Mapping model
+There are several problems while persistency the data into the database because one entity class may contains relational data it is every hard to predict the relationship with underlying database.
+ORM Technology has founded five most common problems while dealing with the relationship with object.
+• Granularity
+• Inheritance
+• Navigation
+• Identity
+• Association
+
+For that ORM has come with
+**Inheritance Mapping Model** 
+To solve the problem with inheritance probelm there are 3 strategy way:
+1. SingleTable 
+2. Table per class
+3. Joined
+
+[Inheritance Explanation Diagram](./image/Inheritance.png)
+Example : [Membership class](./src/main/java/com/example/springjpa/model/Membership.java) , [BasicMembershipClass](./src/main/java/com/example/springjpa/model/BasicMemberShip.java) , [PremiumMembership Class](./src/main/java/com/example/springjpa/model/PreminumMembership.java)
+
+
+## Association
+1. One-to-one 
+	When we want to map the 2 table as one-to-one relationship we use this mapping. Example: IssueCard need to map person and there can be only one issuecard to one person. This is one-to-one unidirectional. As in person we don't need to map issue card. But if we need person to have issuecard into that then as we done with issuecard we have to do same in person we have to create one more foreign key in person as issue card so we can map issue card too. This is Bidirectional. In This we need to make the change in table. But if we don't need to change the table then JPA also provide mapped attribute in @oneToOne.
+	[Person.class](./src/main/java/com/example/springjpa/model/Person.java)
+	[IssueCard.class](./src/main/java/com/example/springjpa/model/IssueCard.java)
+2. One-to-many:
+When we want to map two table and the table can map the multiple entity of another table. Always Consider as Class and attribute, if class can have multiple attribute then it is one-to-many.
+[IssueCard.java](./src/main/java/com/example/springjpa/model/IssueCard.java)
+>One issue card may have multiple rating, so it is one-to-many maping
+3. many-to-one
+When we want to map two table and the entity can map the multiple table. Always Consider as Class and attribute, if we have multiple class that map to single attribute then it is many-to-one.
+[Rating.java](./src/main/java/com/example/springjpa/model/Rating.java)
+>There can be multiple rating for one issue card.
+4. Many-to-many
+If multiple class can be mapped to another multiple class.
+
+
 
 # Transaction Management
 
@@ -123,11 +240,11 @@ This is the highest isolation level.
 ###  Propogation
 Spring use the propogation to configure the transaction boundary across business layer,
 
- 1.    **REQUIRED** — support a current transaction, create a new one if none exist
-2.  **REQUIRES_NEW** — create a new transaction and suspend the current transaction if none exist
-3.   **MANDATORY** — support a current transaction, throw an exception if none exists
-4   **NESTED** — executes within a nested transaction if a current transaction exists
-5   **SUPPORTS** — supports currents transaction but execute non-transactionally if none exists
+1. **REQUIRED** — support a current transaction, create a new one if none exist
+2. **REQUIRES_NEW** — create a new transaction and suspend the current transaction if none exist
+3. **MANDATORY** — support a current transaction, throw an exception if none exists
+4  **NESTED** — executes within a nested transaction if a current transaction exists
+5  **SUPPORTS** — supports currents transaction but execute non-transactionally if none exists
 
 ### Implementation of transaction management:
 @transactional from javax.transaction.Transactional is good to manage transation for single db.
@@ -146,18 +263,24 @@ Attribute in @Transactional spring :
 
 [Example](./src/main/java/com/example/springjpa/config/Configuration.java)
 
+### Pessimistic Locking:
+When transaction at the first time tries to access the data it will acquire a lock to that so that other transaction will be in waiting state for reading the data.
+The main Disadvantage is that a resource is locked from the time it is first accessed in a transaction until the transaction is finished, making it inaccessible to other transactions during that time.So if there are n transaction happening in parallel all transaction has to wait.
 
-```mermaid
-sequenceDiagram
-Alice ->> Bob: Hello Bob, how are you?
-Bob-->>John: How about you John?
-Bob--x Alice: I am good thanks!
-Bob-x John: I am good thanks!
-Note right of John: Bob thinks a long<br/>long time, so long<br/>that the text does<br/>not fit on a row.
+### Optimistic Locking
+In this scenario when transaction tries to commit the data in database it will check the state of the resource is read from storage again and compared to the state that was saved when the resource was first accessed in the transaction. If the state is changed then it will not commit the changes and transaction will be rollback. The main advantage is the transaction will not keep a lock at first time it accessed so that other transaction can be run concurrent.
 
-Bob-->Alice: Checking with John...
-Alice->John: Yes... John, how are you?
-```
+### JPA provide type of lock:
+1. OPTIMISTIC – it obtains an optimistic read lock for all entities containing a version attribute
+2. OPTIMISTIC_FORCE_INCREMENT – it obtains an optimistic lock the same as OPTIMISTIC and additionally increments the version attribute value
+3. READ – it's a synonym for OPTIMISTIC
+4. WRITE – it's a synonym for OPTIMISTIC_FORCE_INCREMENT
+5. PESSIMISTIC_READ - allows us to obtain a shared lock and prevent the data from being updated or deleted
+6. PESSIMISTIC_FORCE_INCREMENT - works like PESSIMISTIC_WRITE and it additionally increments a version attribute of a versioned entity
+7. PESSIMISTIC_WRITE - allows us to obtain an exclusive lock and prevent the data from being read, updated or deleted
 
-And this will produce a flow chart:
+Example : [Optimistic Locking on entity manager and find method()](./src/main/java/com/example/springjpa/dao/PersonRep.java) , [Locking on Native Query, Named Query](./src/main/java/com/example/springjpa/model/Person.java)
 
+
+### Atomic Locking:
+In the table for row we will have a attribute lock. So when a transaction1 read a row it will increment the lock value 1, which mean no other transaction can do write/ update , when another transaction2  acquire a lock it will again increment the lock value 2. And when transaction1 is finished it will decremnt the lock value to 1. For other transaction to update the value they have to wait till lock value become to 0
