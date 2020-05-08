@@ -25,18 +25,19 @@ To give the session object we pass the datasource and configuration information 
 It is used to convert HQL to underlying BD queries and vice versa. It also contain all the syntax and structure of DB queries. And also it contain the datatype. So in dialect we have one datatype which later on convert to underline database datatype.
 
 ### @PersistenceContext
-Inside the persistence context there is a uniquely entity instance. So for any model mapped with @entity it will create the instance in it and it will managed the lifecycle.  It act as a first level cache where all the entity are fetched from db or persist to DB.
-	The EntityManager API is used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.
-	Whenever in  persistence context entity are changed it will marked the entity as dirty and when transaction complete this changes are flush to persistent storage. So persistence storage will kepp track of each entities.
+Inside the persistence context there is a uniquely entity instance. So for any model mapped with @entity it will create the instance in it and it will managed the lifecycle.  It act as a first level cache where all the entity are fetched from db or persist to DB.</br>
+	The EntityManager API is used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.</br>
+	Whenever in  persistence context entity are changed it will marked the entity as dirty and when transaction complete this changes are flush to persistent storage. So persistence storage will kepp track of each entities.</br>
 	There are 4 state the entity will go through to perfom the persistency
 1. Transient state: When the entity is created. Any operation done on this state will not go to DB.
 2. Persistent state: Where entity of attribute is attached to database or session to perform some operation. JPA operation : persist(), merge()
 3. Detached state: Once object has been removed the relationship with session or database. JPA Method: detach(), clear(),refresh()
 4. Removed state: When we need to perform update, delete from db.: JPA method : merge(),remove()
 [Diagram for Lifecycle](./src/main/resources/image/entity-lifecycle.png)
-	We have 2 type of persistence Context:
+
+</br>We have 2 type of persistence Context:
 1. Transaction-scoped : By default in JPA. There will be only one persistence context object.
-2. Extended-Scoped : There will be multiple persistence object each type when is autowired in multiple bean.And one persistence context is unawre of another persistence object.
+2. Extended-Scoped : There will be multiple persistence object each type when is autowired in multiple bean.And one persistence context is unawre of another persistence object.</br>
 [Extended-Scoped Class](./src/main/java/com/example/springjpa/dao/IssueCardDao.java)
 [Transaction-scoped class](./src/main/java/com/example/springjpa/dao/PersonRep.java)
 
