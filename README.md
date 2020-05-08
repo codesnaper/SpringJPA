@@ -1,8 +1,8 @@
-#Spring-JPA
+# Spring-JPA
 
-##Hibernate V/s JDBC:
+## Hibernate V/s JDBC:
 
- 1. One of the new problem with JDBC is JDBC Exceptions are checked exceptions.
+1. One of the new problem with JDBC is JDBC Exceptions are checked exceptions.
 2. JDBC suffering from more problems to persist the data. If we want to perform any operation we have to know about the whole details about the particular table. About table name, datatypes, column name, whole schema about the table etc.We’ll get data in relational format only.
 3. Most of the time we want data in the object format but JDBC will give data in Relational format, as programmer we have to write for conversation logic object or relational format and relational format to Object format.
 4. JDBC hard to perform transaction Management
