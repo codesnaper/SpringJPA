@@ -13,23 +13,7 @@
 
 
 ## Hibernate CLass:
-```mermaid
-graph LR
-A[Configuration File ,<br/> Mapping File]
-B[SessionFactory]
-C[Session]
-D[Dialect Interface]
-E[Oracle Dialect]
-F[MySql Dialect]
-G[DB2 Dialect]
-A --> B
-B --> C
-C --> D
-D --> C
-D --> E
-D --> F
-D -->G
-```
+[Class Daigram](./image/Class.png)
 ### Session: 
 Object which contain mapping and configuration information and used to have the connection from Database. We cannot create the session object by own because for every transaction we need session object mean every time we will create a new connection. So to get session object we can use sessionFactory
 
@@ -51,7 +35,7 @@ flush(): To write the data to object at this point
 detach(Object): No longer to track the change for the object
 clear(): No longer to track the change in entity manager for all object.
 refresh(object): Whatever the change done to object is not required rollback it.
-[Example](./src/main/java/com/example/springjpa/dao/PersonRep.java)
+[Example Entity Manager Java Class](./src/main/java/com/example/springjpa/dao/PersonRep.java)
 
 
 
@@ -126,7 +110,7 @@ CLass B(){
 3. **Composition**:
 > It same like aggregration only difference is that child class cannot exist if parent class is not there.
 
->[Daigram]('./image/association')
+>[Daigram]('./image/association.png')
 
 ### Relationship Mapping model
 There are several problems while persistency the data into the database because one entity class may contains relational data it is every hard to predict the relationship with underlying database.
@@ -144,7 +128,7 @@ To solve the problem with inheritance probelm there are 3 strategy way:
 2. Table per class
 3. Joined
 
-[Inheritance Explanation](./image/Inheritance.png)
+[Inheritance Explanation Diagram](./image/Inheritance.png)
 Example : [Membership class](./src/main/java/com/example/springjpa/model/Membership.java) , [BasicMembershipClass](./src/main/java/com/example/springjpa/model/BasicMemberShip.java) , [PremiumMembership Class](./src/main/java/com/example/springjpa/model/PreminumMembership.java)
 
 
@@ -160,7 +144,7 @@ When we want to map two table and the table can map the multiple entity of anoth
 3. many-to-one
 When we want to map two table and the entity can map the multiple table. Always Consider as Class and attribute, if we have multiple class that map to single attribute then it is many-to-one.
 [Rating.java](./src/main/java/com/example/springjpa/model/Rating.java)
-There can be multiple rating for one issue card.
+>There can be multiple rating for one issue card.
 4. Many-to-many
 If multiple class can be mapped to another multiple class.
 
