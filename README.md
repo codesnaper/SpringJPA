@@ -24,6 +24,26 @@ To give the session object we pass the datasource and configuration information 
 ###  Dialect
 It is used to convert HQL to underlying BD queries and vice versa. It also contain all the syntax and structure of DB queries. And also it contain the datatype. So in dialect we have one datatype which later on convert to underline database datatype.
 
+### @PersistenceContext
+Inside the persistence context there is a uniquely entity instance. So for any model mapped with @entity it will create the instance in it and it will managed the lifecycle.  It act as a first level cache where all the entity are fetched from db or persist to DB.
+	The EntityManager API is used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.
+	Whenever in  persistence context entity are changed it will marked the entity as dirty and when transaction complete this changes are flush to persistent storage. So persistence storage will kepp track of each entities.
+	There are 4 state the entity will go through to perfom the persistency
+1. Transient state: When the entity is created. Any operation done on this state will not go to DB.
+2. Persistent state: Where entity of attribute is attached to database or session to perform some operation. JPA operation : persist(), merge()
+3. Detached state: Once object has been removed the relationship with session or database. JPA Method: detach(), clear(),refresh()
+4. Removed state: When we need to perform update, delete from db.: JPA method : merge(),remove()
+[Diagram for Lifecycle](./image/entity-lifecycle.png)
+	We have 2 type of persistence Context:
+1. Transaction-scoped : By default in JPA. There will be only one persistence context object.
+2. Extended-Scoped : There will be multiple persistence object each type when is autowired in multiple bean.And one persistence context is unawre of another persistence object.
+[Extended-Scoped Class](./src/main/java/com/example/springjpa/dao/IssueCardDao.java)
+[Transaction-scoped class](./src/main/java/com/example/springjpa/dao/PersonRep.java)
+
+## @DirtiesContext
+	When we dont want the transaction to be saved on to DB  after the operation is complete.
+	[PersonRepTest.java](./src/test/java/com/example/springjpa/dao/PersonRepTest.java)
+	
 ## Lazy Fetch and Eager Fetch
 When we mapped the object there may be another object which need to mapped. For example for Book class we also have Person Object which need to get Value. So in lazy fetch when we call the IssueCard class it will create a proxy object of person and instead of going to db to get value it will populate default value. But when we access the person object i.e. issueCaed.getPerson() then it will again go to db and fetch the value . So this is called lazy Fetch .
 But in Eager fetch it will prepolute the value.
@@ -243,18 +263,24 @@ Attribute in @Transactional spring :
 
 [Example](./src/main/java/com/example/springjpa/config/Configuration.java)
 
+### Pessimistic Locking:
+When transaction at the first time tries to access the data it will acquire a lock to that so that other transaction will be in waiting state for reading the data.
+The main Disadvantage is that a resource is locked from the time it is first accessed in a transaction until the transaction is finished, making it inaccessible to other transactions during that time.So if there are n transaction happening in parallel all transaction has to wait.
 
-```mermaid
-sequenceDiagram
-Alice ->> Bob: Hello Bob, how are you?
-Bob-->>John: How about you John?
-Bob--x Alice: I am good thanks!
-Bob-x John: I am good thanks!
-Note right of John: Bob thinks a long<br/>long time, so long<br/>that the text does<br/>not fit on a row.
+### Optimistic Locking
+In this scenario when transaction tries to commit the data in database it will check the state of the resource is read from storage again and compared to the state that was saved when the resource was first accessed in the transaction. If the state is changed then it will not commit the changes and transaction will be rollback. The main advantage is the transaction will not keep a lock at first time it accessed so that other transaction can be run concurrent.
 
-Bob-->Alice: Checking with John...
-Alice->John: Yes... John, how are you?
-```
+### JPA provide type of lock:
+1. OPTIMISTIC – it obtains an optimistic read lock for all entities containing a version attribute
+2. OPTIMISTIC_FORCE_INCREMENT – it obtains an optimistic lock the same as OPTIMISTIC and additionally increments the version attribute value
+3. READ – it's a synonym for OPTIMISTIC
+4. WRITE – it's a synonym for OPTIMISTIC_FORCE_INCREMENT
+5. PESSIMISTIC_READ - allows us to obtain a shared lock and prevent the data from being updated or deleted
+6. PESSIMISTIC_FORCE_INCREMENT - works like PESSIMISTIC_WRITE and it additionally increments a version attribute of a versioned entity
+7. PESSIMISTIC_WRITE - allows us to obtain an exclusive lock and prevent the data from being read, updated or deleted
 
-And this will produce a flow chart:
+Example : [Optimistic Locking on entity manager and find method()](./src/main/java/com/example/springjpa/dao/PersonRep.java) , [Locking on Native Query, Named Query](./src/main/java/com/example/springjpa/model/Person.java)
 
+
+### Atomic Locking:
+In the table for row we will have a attribute lock. So when a transaction1 read a row it will increment the lock value 1, which mean no other transaction can do write/ update , when another transaction2  acquire a lock it will again increment the lock value 2. And when transaction1 is finished it will decremnt the lock value to 1. For other transaction to update the value they have to wait till lock value become to 0
