@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.transaction.Transactional;
 import java.sql.Date;
 import java.util.List;
@@ -24,7 +21,7 @@ public class PersonRep implements IPersonRep {
     EntityManager entityManager;
 
     public Person findById(int id) throws NotFoundException{
-        Person person =entityManager.find(Person.class,id);
+        Person person =entityManager.find(Person.class,id,LockModeType.OPTIMISTIC);
         if(person!=null){
             return person;
         }
@@ -113,7 +110,7 @@ public class PersonRep implements IPersonRep {
     public void entityManagerClear(){
         Person person = new Person("Shubham","Khandelwal",new Date(2l));
         Person person1 = new Person("Shiva","Kumar",new Date(2l));
-
+        entityManager.lock(person, LockModeType.PESSIMISTIC_READ);
         entityManager.persist(person);
         entityManager.persist(person1);
         this.printRow(this.getAllPerson());

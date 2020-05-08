@@ -19,7 +19,7 @@ import java.sql.Date;
 //@NamedQuery(name = "find_person_by_name",query = "select p from Person p where firstName = :firstNane")
 @NamedQueries(value = {
         @NamedQuery(name = "find_all_person",query = "select p from Person p"),
-        @NamedQuery(name = "find_person_by_name",query = "select p from Person p where firstName = :firstNane")
+        @NamedQuery(name = "find_person_by_name",query = "select p from Person p where firstName = :firstNane",lockMode = LockModeType.PESSIMISTIC_READ)
 })
 public class Person {
 
