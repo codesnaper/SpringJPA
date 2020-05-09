@@ -2,7 +2,9 @@ package com.example.springjpa.dao;
 
 import com.example.springjpa.SpringJpaApplication;
 import com.example.springjpa.exception.NotFoundException;
+import com.example.springjpa.model.Address;
 import com.example.springjpa.model.Person;
+import com.example.springjpa.util.Util;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +35,15 @@ public class PersonRepTest {
     public void addData(){
         this.person = new Person("Shubham","Khandelwal",new Date(1l));
         this.personId = personRep.insertPerson(person);
+    }
+
+    @Test
+    public void addDataWithAddress(){
+        this.person = new Person("Shubham","Khandelwal",new Date(1l));
+        Address address = new Address("line1","line2","Hyderabad","India","500012");
+        this.person.setAddress(address);
+        this.personId = personRep.insertPerson(person);
+        Util.printRow(personRep.getAllPerson());
     }
     @Test
     public void findById() throws NotFoundException {

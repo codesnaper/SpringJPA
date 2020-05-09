@@ -8,6 +8,11 @@ CREATE TABLE person (
   id INT AUTO_INCREMENT  PRIMARY KEY,
   first_name VARCHAR(250) NOT NULL,
   last_name VARCHAR(250) NOT NULL,
+  line1 VARCHAR(250) NULL,
+  line2 VARCHAR(250) NULL,
+  city VARCHAR(250) NULL,
+  country VARCHAR(250) NULL,
+  zip VARCHAR(250) NULL,
   birthDate  Date NULL,
   last_update  Date NULL,
   created_date Date NULL

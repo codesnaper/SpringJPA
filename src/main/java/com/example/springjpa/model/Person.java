@@ -43,6 +43,8 @@ public class Person {
     @Column(name = "last_name",nullable = false)
     private String lastName;
 
+    @Embedded
+    private Address address;
 
     private Date birthDate; //name match with table column name so no need to annotate @Column
 
