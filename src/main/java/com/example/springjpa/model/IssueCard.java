@@ -39,6 +39,7 @@ public class IssueCard {
     private int id;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "personId")
     private Person person;
 
     @Column(name = "issue_no",nullable = false)
