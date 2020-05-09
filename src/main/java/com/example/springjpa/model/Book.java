@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,6 +25,8 @@ import java.util.List;
 })
 //@Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@SQLDelete(sql = "update book set is_deleted=true where id = ?")
+@Where(clause = "is_deleted = false")
 public class Book {
 
     public Book() {
@@ -57,5 +61,13 @@ public class Book {
 
     @OneToOne(mappedBy = "book")
     private IssueCard issueCard;
+
+    @Column(name = "is_deleted")
+    private boolean deletedFalg = false;
+
+    @PreRemove
+    public void rundeleteEntity(){
+        this.deletedFalg = true;
+    }
 
 }

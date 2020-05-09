@@ -19,7 +19,8 @@ CREATE TABLE book (
     author_name VARCHAR(250) NOT NULL,
     category_type VARCHAR(250) NOT NULL,
     book_register_date DATE NOT NULL,
-    volume INT NOT NULL
+    volume INT NOT NULL,
+    IS_DELETED INT NOT NULL
 );
 
 CREATE TABLE issue_card (

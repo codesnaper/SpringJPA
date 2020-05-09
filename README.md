@@ -291,7 +291,7 @@ In the table for row we will have a attribute lock. So when a transaction1 read 
 [Cache Diagram](./src/main/resources/image/Caching.png)
 ### First Level Cache (L1):
 Persistence context will act as a first level cache and the cache will  work only in tansaction boundary.</br>
-For each transaction level there will be different cache. Example in class [bookdao.class](./src/main/java/com/example/springjpa/dao/BookDao.java) , [bookdaoTest.class](./src/main/test/java/com/example/springjpa/dao/BookDaoCachingTest.java)
+For each transaction level there will be different cache. Example in class [bookdao.class](./src/main/java/com/example/springjpa/dao/BookDao.java) , [bookdaoTest.class](./src/test/java/com/example/springjpa/dao/BookDaoCachingTest.java)
 So we put find book method as @Transaction and when we call find book method 2 time from the method then it will hit the db 2 time but when we add transaction to method who is calling 2 time then both operation will come under one transaction. So therefore at first time it will go to db and second time it will not go to DB.
 
 ### Second Level Cache(L2):

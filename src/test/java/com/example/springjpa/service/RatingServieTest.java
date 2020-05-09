@@ -9,10 +9,7 @@ import com.example.springjpa.exception.AlreadyIssuedBook;
 import com.example.springjpa.exception.IssueCardExpiration;
 import com.example.springjpa.exception.ItemNotAssocaited;
 import com.example.springjpa.exception.NotFoundException;
-import com.example.springjpa.model.Book;
-import com.example.springjpa.model.IssueCard;
-import com.example.springjpa.model.Person;
-import com.example.springjpa.model.Rating;
+import com.example.springjpa.model.*;
 import com.example.springjpa.util.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,15 +68,22 @@ public class RatingServieTest {
     }
 
     @Test
+    public void insertRating(){
+        Rating rating = new Rating(RatingStar.FOUR,"I like the book");
+        ratingDao.insetRating(rating);
+        Util.printRow(ratingDao.getAllRatings());
+    }
+
+    @Test
     public void submitRating() throws ItemNotAssocaited, AlreadyIssuedBook , NotFoundException, IssueCardExpiration {
         issueCardService.issueNewBook(this.bookId,issueCard.getIssueNumber(),this.person);
-        Rating rating = new Rating(4,"I like the book");
+        Rating rating = new Rating(RatingStar.FOUR,"I like the book");
         Assert.assertNotEquals("Issue Card submit a rating ",ratingServie.submitRating(rating,this.issueCard),0);
 
-        rating = new Rating(5,"I like the book");
+        rating = new Rating(RatingStar.FIVE,"I like the book");
         Assert.assertNotEquals("Issue Card submit a rating ",ratingServie.submitRating(rating,this.issueCard),0);
 
-        rating = new Rating(2,"I like the book");
+        rating = new Rating(RatingStar.TWO,"I like the book");
         Assert.assertNotEquals("Issue Card submit a rating ",ratingServie.submitRating(rating,this.issueCard),0);
 
         Util.printRow(issueCardDao.getIssueCardwith2MaxRating());
@@ -99,7 +103,7 @@ public class RatingServieTest {
 
     @Test(expected = ItemNotAssocaited.class)
     public void submitRatingExpectException() throws ItemNotAssocaited, AlreadyIssuedBook , NotFoundException, IssueCardExpiration {
-        Rating rating = new Rating(4,"I like the book");
+        Rating rating = new Rating(RatingStar.FOUR,"I like the book");
         Assert.assertNotEquals("Failed to submit a rating when no book is issued",ratingServie.submitRating(rating,this.issueCard),0);
         ratingServie.printRating();
     }

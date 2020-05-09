@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"ratingStarDB"})
 @Entity
 @Table(name = "rating")
 @NamedQueries(value = {
@@ -18,7 +18,7 @@ import javax.persistence.*;
 })
 public class Rating {
 
-    public Rating(int ratingStar, String description) {
+    public Rating(RatingStar ratingStar, String description) {
         this.ratingStar = ratingStar;
         this.description = description;
     }
@@ -27,13 +27,30 @@ public class Rating {
     @GeneratedValue
     private int id;
 
+    @Enumerated(value = EnumType.STRING)
+    private RatingStar ratingStar;
+
     @Column( name = "rating_star",nullable = false)
-    private int ratingStar;
+    private int ratingStarDB;
 
     private String description;
 
     @ManyToOne
     private IssueCard issueCard;
+
+    @PrePersist
+    @PreUpdate
+    public void updateRatingStar(){
+        this.ratingStarDB = this.ratingStar.getValue();
+    }
+
+    @PostLoad
+    public void fillRatingStar(){
+        this.ratingStar = RatingStar.getRatingStar(this.ratingStarDB);
+    }
+
+
+
 
 
 }
