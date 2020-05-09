@@ -285,3 +285,34 @@ Example : [Optimistic Locking on entity manager and find method()](./src/main/ja
 
 ### Atomic Locking:
 In the table for row we will have a attribute lock. So when a transaction1 read a row it will increment the lock value 1, which mean no other transaction can do write/ update , when another transaction2  acquire a lock it will again increment the lock value 2. And when transaction1 is finished it will decremnt the lock value to 1. For other transaction to update the value they have to wait till lock value become to 0
+
+
+## Caching
+[Cache Diagram]('./src/main/resources/image/Caching.png')
+### First Level Cache (L1):
+Persistence context will act as a first level cache and the cache will  work only in tansaction boundary.</br>
+For each transaction level there will be different cache. Example in class [bookdao.class](./src/main/java/com/example/springjpa/dao/BookDao.java) , [bookdaoTest.class](./src/main/test/java/com/example/springjpa/dao/BookDaoCachingTest.java)
+So we put find book method as @Transaction and when we call find book method 2 time from the method then it will hit the db 2 time but when we add transaction to method who is calling 2 time then both operation will come under one transaction. So therefore at first time it will go to db and second time it will not go to DB.
+
+### Second Level Cache(L2):
+If we want to have cache across multiple transaction layer then we can use second level cache.
+For L2 cache we have to provide Cache to JPA.
+So we have to make configuration to Hibernate:
+1. Enable second level cache
+2. Provide cache provider(Here we use EHCache)
+    ```
+    Property:
+   //enable second  level cahce
+   hibernateProperties.put("hibernate.cache.use_second_level_cache","true");
+   //Which Cache provider to use
+   hibernateProperties.put("hibernate.cache.region.factory_class","org.hibernate.cache.ehcache.EhCacheRegionFactory");
+    ```
+   [Configuration.class](./src/main/java/com/example/springjpa/config/Configuration.java)
+3. Say to cache only data we want, so whatever entity we want to cache annotate with @Cache(startegy)
+</br> [Book.java](./src/main/java/com/example/springjpa/model/Book.java)
+</br>Strategy type:
+1. READ_ONLY: Used only for entities that never change (exception is thrown if an attempt to update such an entity is made). It is very simple and performant. Very suitable for some static reference data that don't change
+2. NONSTRICT_READ_WRITE: Cache is updated after a transaction that changed the affected data has been committed. Thus, strong consistency is not guaranteed and there is a small time window in which stale data may be obtained from cache. This kind of strategy is suitable for use cases that can tolerate eventual consistency
+3. READ_WRITE: This strategy guarantees strong consistency which it achieves by using ‘soft' locks: When a cached entity is updated, a soft lock is stored in the cache for that entity as well, which is released after the transaction is committed. All concurrent transactions that access soft-locked entries will fetch the corresponding data directly from database
+4. TRANSACTIONAL: Cache changes are done in distributed XA transactions. A change in a cached entity is either committed or rolled back in both database and cache in the same XA transaction
+

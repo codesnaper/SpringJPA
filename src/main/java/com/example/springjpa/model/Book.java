@@ -4,7 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +21,8 @@ import java.util.List;
         @NamedQuery(name = "find_all_book",query = "select b from Book b"),
         @NamedQuery(name = "find_all_book_not_issued",query = "select b from Book b where b.issueCard is empty")
 })
+//@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Book {
 
     public Book() {

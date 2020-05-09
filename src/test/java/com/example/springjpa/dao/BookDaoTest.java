@@ -70,4 +70,6 @@ public class BookDaoTest {
     public void getAllBook() {
         Assert.assertEquals(1,bookDao.getAllBook().size());
     }
+
+
 }

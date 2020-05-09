@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.Cacheable;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -21,7 +23,14 @@ public class BookDao {
     @PersistenceContext
     EntityManager entityManager;
 
+    @PostConstruct
+    public  void setProp(){
+        entityManager.setProperty("javax.persistence.sharedCache.mode","ENABLE_SELECTIVE");
+    }
+
+    @Transactional
     public Book findById(int id) throws NotFoundException {
+
         Book book =entityManager.find(Book.class,id);
         if(book!=null){
             return book;
@@ -35,6 +44,7 @@ public class BookDao {
         return book1;
     }
 
+    @Transactional
     public int  insetBook(Book book){
         entityManager.persist(book);
         entityManager.flush();

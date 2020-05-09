@@ -25,6 +25,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -36,7 +39,6 @@ public class Configuration {
     @Autowired
     @Qualifier("dbDevConfig")
     private DBConfigModel dbConfigModel;
-
     @Autowired
     private DataSource dataSource;
     @Profile("dev")
@@ -62,9 +64,19 @@ public class Configuration {
         hibernateProperties.put("hibernate.show_sql", "true");
         hibernateProperties.put("hibernate.hbm2ddl.auto", "create");
         hibernateProperties.put("hibernate.format_sql","true");
+        hibernateProperties.put("hibernate.generate_statistics","true");
+
+        //enable second  level cahce
+        hibernateProperties.put("hibernate.cache.use_second_level_cache","true");
+        //Which Cache provider to use
+        hibernateProperties.put("hibernate.cache.region.factory_class","org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        //Cache which i specified. value from SharedCacheMode.class has to be added to Entity manager
+//        javax.persistence.sharedCache.mode
         localSessionFactoryBean.setHibernateProperties(hibernateProperties);
+
         return localSessionFactoryBean;
     }
+
 
     @Bean
     public PlatformTransactionManager transactionManager(){
