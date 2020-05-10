@@ -62,11 +62,12 @@ refresh(object): Whatever the change done to object is not required rollback it.
 
 # RelationShip
 
-### Relationship using inheritance
+### ORM Realtionship
 1. **Generalization**
 >It is process of keeping duplicate method in one class and extend the class to another class for using the method.
 
-Example: m1() functionality is the duplicate method require in Class B & C for their method
+Example: m1() functionality is the duplicate method require in Class B & C for their method</br>
+```
 Class A{
 	public void m1(){}
 }
@@ -82,11 +83,13 @@ Class C extend A{
 	super.m1();
 	}
 }
+```
 
 2. **Realization**
 >Here we will be using same method but the implemantation of method is different according to class.
 
 Example:
+```
 Interface A{
 	void m1();
 }	
@@ -100,12 +103,14 @@ Class C implements A{
 	@Override
 	public void m1(){//Implementation 2}
 }
+```
 
 3. **Specialization**
 
 > A class which have its own functionlity remain to that class only and will not be sharable to other class.
 
 Example:
+```
 Class A{
 	private  static final m1(){}
 }
@@ -113,16 +118,18 @@ Class A{
 Class B extends A{
 	//m1 cant be share to this class.
 }
+```
 
-### Relationship using Composition
 1. **Association**
 > when we want to communicate with other class there must be a link and that can be represented by assocaition (connector). There can be one-to-one assocaition, one-to-n asociation, n-to-one association
 
 Example:  Class B want to talk to Class A
+```
 Class A(){}
 CLass B(){
 	A a = new A()// now class B can talk to A
 }
+```
 
 2.  **Aggregration**
 > one class "owns" object of another class. But in aggregration it implies   relationship where the child can exist independently of the parent
@@ -142,9 +149,7 @@ ORM Technology has founded five most common problems while dealing with the rela
 • Identity
 • Association
 
-For that ORM has come with
-**Inheritance Mapping Model** 
-To solve the problem with inheritance probelm there are 3 strategy way:
+For that ORM Relationship JP has come with
 1. SingleTable 
 2. Table per class
 3. Joined
@@ -311,8 +316,63 @@ So we have to make configuration to Hibernate:
 3. Say to cache only data we want, so whatever entity we want to cache annotate with @Cache(startegy)
 </br> [Book.java](./src/main/java/com/example/springjpa/model/Book.java)
 >Strategy type:
-1. READ_ONLY: Used only for entities that never change (exception is thrown if an attempt to update such an entity is made). It is very simple and performant. Very suitable for some static reference data that don't change
-2. NONSTRICT_READ_WRITE: Cache is updated after a transaction that changed the affected data has been committed. Thus, strong consistency is not guaranteed and there is a small time window in which stale data may be obtained from cache. This kind of strategy is suitable for use cases that can tolerate eventual consistency
-3. READ_WRITE: This strategy guarantees strong consistency which it achieves by using ‘soft' locks: When a cached entity is updated, a soft lock is stored in the cache for that entity as well, which is released after the transaction is committed. All concurrent transactions that access soft-locked entries will fetch the corresponding data directly from database
-4. TRANSACTIONAL: Cache changes are done in distributed XA transactions. A change in a cached entity is either committed or rolled back in both database and cache in the same XA transaction
+1. **READ_ONLY**: Used only for entities that never change (exception is thrown if an attempt to update such an entity is made). It is very simple and performant. Very suitable for some static reference data that don't change
+2. **NONSTRICT_READ_WRITE**: Cache is updated after a transaction that changed the affected data has been committed. Thus, strong consistency is not guaranteed and there is a small time window in which stale data may be obtained from cache. This kind of strategy is suitable for use cases that can tolerate eventual consistency
+3. **READ_WRITE**: This strategy guarantees strong consistency which it achieves by using ‘soft' locks: When a cached entity is updated, a soft lock is stored in the cache for that entity as well, which is released after the transaction is committed. All concurrent transactions that access soft-locked entries will fetch the corresponding data directly from database
+4. **TRANSACTIONAL**: Cache changes are done in distributed XA transactions. A change in a cached entity is either committed or rolled back in both database and cache in the same XA transaction
 
+##Other 
+### Soft delete:
+When we dont want to remove the data from db permanently, then we mark the data as delete flag. So in hibernate to do that we have @SQLDelete so whenever entitymanager.remove(id) is called it will execute the query provided in @SQLDelete. </br>
+Example: I don't want to delete the book Permanently so i will put isDeleted as true . [Book.class](./src/main/java/com/example/springjpa/model/Book.java)
+
+### @Where
+SO for Book we only want to execute all the query where is_deleted is false, so we can do in @Where. But it will not work for native query. So we have to take care.
+[Book.class](./src/main/java/com/example/springjpa/model/Book.java)
+
+### toString():
+In Book.class we have issue card, so for issue card JPA will again query, so if we don't need to get issueCard in toString(), exclude it [Book.class](./src/main/java/com/example/springjpa/model/Book.java)
+
+### @joinColumn
+On associative mapping when we want entity to join based on particular column id . Example [IssueCard.java](./src/main/java/com/example/springjpa/model/IssueCard.java)
+
+### @Embeddable, @Embedded:
+Example [Person.java](./src/main/java/com/example/springjpa/model/Person.java), [Address.java](./src/main/java/com/example/springjpa/model/Address.java)
+
+## Performance Tuning
+
+1. Before doing performance tuning enable the statistic on production like enviornment (Acceptance Enviornment)
+```$xslt
+hibernate.generate_statistics=true
+logging.level.org.hibernate.stat=debug
+```
+
+2. Based on execution plan of sql query identiy the right index to make query faster.
+
+3. Make proper caching. Not store too much cache as its size grow its take time to take result.
+
+4. Eager v/s Lazy Fetch to choose.
+
+5. Avoid N+1 problem</br>
+Example: When we fire the issue_card in Lazy Fetch @OneToOnce mapping, we  get all query , we will get all the row of issue_card , but issue_Card also contain person, so while printing person along with row it will fire getPersonQuery using id. As there are N row for issue card, so it fire N query to get Person. So total number of query executed is N+1, N is no of query to get person and 1 to fetch issue Card.</br>
+    To fix the N+1 problem 
+    1. **Make it eager fetch**. But it will also fetch person if not required
+    2. **Using Entity Graph**. So in the scenario when we want all information i.e Issue Card and person we add entity graph.</br> Example in [IssudeCard.java  getBookWithPersonEntityGraph()](./src/test/java/com/example/springjpa/service/IssueCardServiceTest.java)
+    3. **Using Join Fetch**: 
+    ```
+            @NamedQuery(name = "find_all_issueCard_joinFetch_person",query = "select ic from IssueCard JOIN FETCH ic.person")
+   ```
+ 
+6. For a table if there is lot of join then we can create a view
+
+
+### [Type of Index](https://www.geeksforgeeks.org/indexing-in-databases-set-1/)
+
+
+### [SQL Command Categorization](https://www.geeksforgeeks.org/sql-ddl-dql-dml-dcl-tcl-commands/)
+
+### [LRU Cache Implementation](https://www.geeksforgeeks.org/lru-cache-implementation/)
+
+### [SQL Interview Question](https://www.interviewbit.com/sql-interview-questions/)
+
+### [Inner, Left, Right, Full Join ](https://www.geeksforgeeks.org/sql-join-set-1-inner-left-right-and-full-joins/), [Natural, Cross Join](https://www.geeksforgeeks.org/difference-between-natural-join-and-cross-join-in-sql/?ref=rp)

@@ -23,7 +23,8 @@ import java.util.List;
         @NamedQuery(name = "issuecard_with_more_2_ratings", query = "select ic from IssueCard ic where size(ic.ratingList) > 2"),
         @NamedQuery(name = "issuecard_join_book" , query = "select ic, b from IssueCard ic JOIN ic.book b"),
         @NamedQuery(name = "issuecard_leftJoin_book", query = "select ic, b from IssueCard ic JOIN ic.book b"),
-        @NamedQuery(name = "issuecard_crossJoin_book", query = "select ic, b from IssueCard ic, Book b")
+        @NamedQuery(name = "issuecard_crossJoin_book", query = "select ic, b from IssueCard ic, Book b"),
+        @NamedQuery(name = "find_all_issueCard_joinFetch_person",query = "select ic from IssueCard JOIN FETCH ic.person")
 })
 public class IssueCard {
 

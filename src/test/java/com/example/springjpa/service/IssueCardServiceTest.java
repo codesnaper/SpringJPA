@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringJpaApplication.class)
@@ -139,6 +140,14 @@ public class IssueCardServiceTest {
         memberShipDao.addMembership(membership);
 
         issueCardService.getIssueCard(personId);
+    }
+
+    @Test
+    public void getBookWithPersonEntityGraph(){
+        List<IssueCard> issueCardList = issueCardDao.getAllIssueCardWithPersonUsingNplus1();
+        Util.printRow(issueCardList);
+        Person person = issueCardList.get(0).getPerson();
+        Assert.assertNotNull(person);
     }
 
 }

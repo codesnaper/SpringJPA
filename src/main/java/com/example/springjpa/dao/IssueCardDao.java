@@ -3,15 +3,13 @@ package com.example.springjpa.dao;
 import com.example.springjpa.exception.NotFoundException;
 import com.example.springjpa.model.Book;
 import com.example.springjpa.model.IssueCard;
+import com.example.springjpa.model.Person;
 import com.example.springjpa.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,6 +94,15 @@ public class IssueCardDao {
         List<Object[]> issueCards = issueCardTypedQuery.getResultList();
         issueCards.stream().forEach(objects -> Arrays.asList(issueCards.get(0)).stream().forEach(o -> System.out.println(o.toString())));
         return issueCards.size();
+    }
+
+    public List<IssueCard> getAllIssueCardWithPersonUsingNplus1(){
+        EntityGraph<IssueCard> issueCardEntityGraph = entityManager.createEntityGraph(IssueCard.class);
+        Subgraph<Person> personSubgraph = issueCardEntityGraph.addSubgraph("person");
+        return entityManager
+                .createNativeQuery("find_all_issueCard",IssueCard.class)
+                .setHint("javax.persistence.loadgraph",issueCardEntityGraph)
+                .getResultList();
     }
 
 
